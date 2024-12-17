@@ -1,3 +1,5 @@
+import { createElement, ElementType } from "react"
+
 export const tailwindBreakpoints = ["sm", "md", "lg", "xl", "2xl"]
 
 export type Responsive<T> = T | T[]
@@ -131,6 +133,7 @@ export const layout: Record<keyof LayoutProps, string> = {
   height: "h",
 }
 
+// Transform props to Tailwind classes
 function transformProps(
   props: Record<string, any>,
   mappings: Record<string, string>[],
@@ -144,11 +147,9 @@ function transformProps(
       if (value !== undefined) {
         if (Array.isArray(value)) {
           const paddedValues = [...value]
-
           while (paddedValues.length < tailwindBreakpoints.length) {
             paddedValues.push(paddedValues[paddedValues.length - 1])
           }
-
           paddedValues.forEach((v, index) => {
             classes.push(`${tailwindBreakpoints[index]}:${prefix}-${v}`)
           })
@@ -164,35 +165,41 @@ function transformProps(
 
 export function createVariants<
   VariantKeys extends string,
-  VariantConfig extends Record<
-    VariantKeys,
-    Partial<
-      SpaceProps &
-        ColorProps &
-        TypographyProps &
-        BorderProps &
-        ShadowProps &
-        LayoutProps
-    >
-  >,
+  VariantConfig extends Record<VariantKeys, Partial<SpaceProps>>,
 >(config: VariantConfig) {
   return config
 }
 
+// Main tailwindSystem function
 export function tailwindSystem<T, Variants = {}>(
-  mappings: Record<string, string>[],
-  variants: Variants = {} as Variants,
+  elementOrMappings: string | Record<string, string>[],
+  mappingsOrVariants?: Record<string, string>[] | Variants,
+  variants?: Variants,
 ) {
+  const element =
+    typeof elementOrMappings === "string" ? elementOrMappings : "div"
+  const mappings: Record<string, string>[] =
+    typeof elementOrMappings === "string"
+      ? (mappingsOrVariants as Record<string, string>[])
+      : (elementOrMappings as Record<string, string>[])
+
+  const resolvedVariants =
+    typeof elementOrMappings === "string"
+      ? variants
+      : (mappingsOrVariants as Variants)
+
   return ({
     className = "",
     children,
     variant,
     ...props
-  }: T & { className?: string; children?: React.ReactNode } & {
+  }: T & {
+    className?: string
+    children?: React.ReactNode
     variant?: keyof Variants
   }) => {
     const variantClasses = variant
-      ? transformProps(variants[variant] || {}, mappings)
+      ? transformProps(resolvedVariants?.[variant] || {}, mappings)
       : ""
 
     const baseClasses = transformProps(props, mappings)
@@ -201,7 +208,7 @@ export function tailwindSystem<T, Variants = {}>(
       .filter(Boolean)
       .join(" ")
 
-    return <div className={finalClassName}>{children}</div>
+    return createElement(element, { className: finalClassName }, children)
   }
 }
 
@@ -230,7 +237,7 @@ const Button = tailwindSystem<
 
 const App = () => (
   <div>
-    <Button p={[1, 2]} m="2">
+    <Button p={[1, 2]} m="0">
       Responsive Button
     </Button>
     <Button variant="foo">Foo Variant</Button>
