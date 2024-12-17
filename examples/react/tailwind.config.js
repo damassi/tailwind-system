@@ -1,15 +1,27 @@
+const withResponsiveVariants = (safelist) => {
+  return safelist.map((pattern) => {
+    return {
+      ...pattern,
+      // TODO: this leads to a large bundle size, so narrow down on only the
+      // necessary variants
+      // variants: ["sm", "md", "lg", "xl", "2xl"],
+      variants: ["sm"],
+    }
+  })
+}
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: ["./src/**/*.{html,js,ts,jsx,tsx}"],
   content: [
     "./src/**/*.{html,js,ts,jsx,tsx}",
-    "../../lib1/src/**/*.{js,ts,jsx,tsx}",
+    "../../lib/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {},
   },
   plugins: [],
-  safelist: [
+  safelist: withResponsiveVariants([
     // Spacing (space, margin, padding)
     { pattern: /m-(\d|auto)/ },
     { pattern: /p-(\d|auto)/ },
@@ -35,7 +47,11 @@ module.exports = {
     { pattern: /rounded-(sm|md|lg|full)/ },
     { pattern: /shadow-(sm|md|lg|xl|2xl|inner)/ },
 
-    // Responsive prefixes
-    { pattern: /(sm|md|lg|xl|2xl):.+/ },
-  ],
+    // Flex
+    { pattern: /flex-(.+)/ },
+    { pattern: /justify-(.+)/ },
+    { pattern: /items-(.+)/ },
+    { pattern: /self-(.+)/ },
+    { pattern: /flex-wrap/ },
+  ]),
 }

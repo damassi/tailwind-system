@@ -44,6 +44,7 @@ export type SpaceScale =
   | 64
 
 export type BorderWidthScale = "0" | "2" | "4" | "8" | 0 | 2 | 4 | 8
+
 export type BorderRadiusScale = "none" | "sm" | "md" | "lg" | "full" | 0
 
 export type SpaceProps = {
@@ -54,7 +55,6 @@ export type SpaceProps = {
   ml?: Responsive<SpaceScale>
   mx?: Responsive<SpaceScale>
   my?: Responsive<SpaceScale>
-
   p?: Responsive<SpaceScale>
   pt?: Responsive<SpaceScale>
   pr?: Responsive<SpaceScale>
@@ -88,6 +88,57 @@ export type ShadowProps = {
 export type LayoutProps = {
   width?: Responsive<string>
   height?: Responsive<string>
+}
+
+export type FlexProps = {
+  flex?: Responsive<string>
+  flexDirection?: Responsive<"row" | "row-reverse" | "col" | "col-reverse">
+  justifyContent?: Responsive<
+    "start" | "center" | "end" | "between" | "around" | "evenly"
+  >
+  alignItems?: Responsive<"start" | "center" | "end" | "baseline" | "stretch">
+  alignSelf?: Responsive<"auto" | "start" | "center" | "end" | "stretch">
+  flexWrap?: Responsive<"wrap" | "nowrap" | "wrap-reverse">
+}
+
+// Display Props
+export type DisplayProps = {
+  display?: Responsive<
+    | "block"
+    | "inline-block"
+    | "inline"
+    | "flex"
+    | "inline-flex"
+    | "table"
+    | "inline-table"
+    | "table-caption"
+    | "table-cell"
+    | "table-column"
+    | "table-column-group"
+    | "table-footer-group"
+    | "table-header-group"
+    | "table-row-group"
+    | "table-row"
+    | "flow-root"
+    | "grid"
+    | "inline-grid"
+    | "contents"
+    | "list-item"
+    | "hidden"
+  >
+}
+
+export const flex: Record<keyof FlexProps, string> = {
+  flex: "flex",
+  flexDirection: "flex",
+  justifyContent: "justify",
+  alignItems: "items",
+  alignSelf: "self",
+  flexWrap: "flex",
+}
+
+export const display: Record<keyof DisplayProps, string> = {
+  display: "",
 }
 
 export const space: Record<keyof SpaceProps, string> = {
@@ -133,7 +184,6 @@ export const layout: Record<keyof LayoutProps, string> = {
   height: "h",
 }
 
-// Transform props to Tailwind classes
 function transformProps(
   props: Record<string, any>,
   mappings: Record<string, string>[],
@@ -144,17 +194,25 @@ function transformProps(
     Object.entries(category).forEach(([key, prefix]) => {
       const value = props[key]
 
-      if (value !== undefined) {
+      if (value) {
         if (Array.isArray(value)) {
           const paddedValues = [...value]
+
           while (paddedValues.length < tailwindBreakpoints.length) {
             paddedValues.push(paddedValues[paddedValues.length - 1])
           }
+
           paddedValues.forEach((v, index) => {
-            classes.push(`${tailwindBreakpoints[index]}:${prefix}-${v}`)
+            const responsivePrefix = tailwindBreakpoints[index]
+
+            classes.push(
+              prefix
+                ? `${responsivePrefix}:${prefix}-${v}`
+                : `${responsivePrefix}:${v}`,
+            )
           })
         } else {
-          classes.push(`${prefix}-${value}`)
+          classes.push(prefix ? `${prefix}-${value}` : `${value}`)
         }
       }
     })
@@ -170,7 +228,6 @@ export function createVariants<
   return config
 }
 
-// Main tailwindSystem function
 export function tailwindSystem<T, Variants = {}>(
   elementOrMappings: string | Record<string, string>[],
   mappingsOrVariants?: Record<string, string>[] | Variants,
@@ -178,6 +235,7 @@ export function tailwindSystem<T, Variants = {}>(
 ) {
   const element =
     typeof elementOrMappings === "string" ? elementOrMappings : "div"
+
   const mappings: Record<string, string>[] =
     typeof elementOrMappings === "string"
       ? (mappingsOrVariants as Record<string, string>[])
@@ -188,16 +246,13 @@ export function tailwindSystem<T, Variants = {}>(
       ? variants
       : (mappingsOrVariants as Variants)
 
-  return ({
-    className = "",
-    children,
-    variant,
-    ...props
-  }: T & {
+  type Component = T & {
     className?: string
     children?: React.ReactNode
     variant?: keyof Variants
-  }) => {
+  }
+
+  return ({ className = "", children, variant, ...props }: Component) => {
     const variantClasses = variant
       ? transformProps(resolvedVariants?.[variant] || {}, mappings)
       : ""
@@ -231,17 +286,22 @@ const Button = tailwindSystem<
     TypographyProps &
     BorderProps &
     ShadowProps &
-    LayoutProps,
+    LayoutProps &
+    FlexProps &
+    DisplayProps,
   typeof buttonVariants
->([space, color, typography, border, shadow, layout], buttonVariants)
+>(
+  [space, color, typography, border, shadow, layout, display, flex],
+  buttonVariants,
+)
 
 const App = () => (
   <div>
-    <Button p={[1, 2]} m="0">
+    <Button p={[1, 2]} display="flex" justifyContent="center">
       Responsive Button
     </Button>
     <Button variant="foo">Foo Variant</Button>
-    <Button variant="bar" p={[2, 4]} boxShadow="lg">
+    <Button variant="bar" display="grid" p={[2, 4]} boxShadow="lg">
       Bar Variant
     </Button>
   </div>

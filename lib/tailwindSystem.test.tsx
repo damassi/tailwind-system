@@ -9,12 +9,14 @@ import {
   typography,
   shadow,
   layout,
+  display,
   SpaceProps,
   ColorProps,
   TypographyProps,
   BorderProps,
   ShadowProps,
   LayoutProps,
+  DisplayProps,
 } from "./tailwindSystem"
 
 // Sample variants
@@ -31,15 +33,26 @@ const buttonVariants = createVariants({
   },
 })
 
+// Button component with variants
 const Button = tailwindSystem<
   SpaceProps &
     ColorProps &
     TypographyProps &
     BorderProps &
     ShadowProps &
-    LayoutProps,
+    LayoutProps &
+    DisplayProps,
   typeof buttonVariants
->([space, color, typography, border, shadow, layout], buttonVariants)
+>([space, color, typography, border, shadow, layout, display], buttonVariants)
+
+// Custom Box component
+const Box = tailwindSystem<DisplayProps>("div", [display])
+
+// Custom Button element
+const CustomButton = tailwindSystem<SpaceProps & DisplayProps>("button", [
+  space,
+  display,
+])
 
 describe("tailwindSystem", () => {
   test("renders component with basic props", () => {
@@ -86,5 +99,40 @@ describe("tailwindSystem", () => {
   test("renders children correctly", () => {
     const { getByText } = render(<Button>Hello World</Button>)
     expect(getByText("Hello World")).toBeInTheDocument()
+  })
+
+  test("applies props without prefixes correctly", () => {
+    const { container } = render(<Box display="flex" />)
+    expect(container.firstChild).toHaveClass("flex")
+  })
+
+  test("applies responsive props without prefixes", () => {
+    const { container } = render(<Box display={["block", "flex", "grid"]} />)
+    expect(container.firstChild).toHaveClass("sm:block md:flex lg:grid")
+  })
+
+  describe("custom elements", () => {
+    test("renders default 'div' element when no custom element is specified", () => {
+      const { container } = render(<Box display="flex" />)
+      const element = container.firstChild as HTMLElement
+      expect(element.tagName.toLowerCase()).toBe("div")
+      expect(element).toHaveClass("flex")
+    })
+
+    test("renders custom element specified as 'button'", () => {
+      const { container } = render(<CustomButton display="flex" />)
+      const element = container.firstChild as HTMLElement
+      expect(element.tagName.toLowerCase()).toBe("button")
+      expect(element).toHaveClass("flex")
+    })
+
+    test("applies props and custom element together", () => {
+      const { container } = render(
+        <CustomButton p="4" display="inline-flex" className="custom-button" />,
+      )
+      const element = container.firstChild as HTMLElement
+      expect(element.tagName.toLowerCase()).toBe("button")
+      expect(element).toHaveClass("p-4 inline-flex custom-button")
+    })
   })
 })

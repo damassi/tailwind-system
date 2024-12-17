@@ -12,7 +12,8 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@lib/*": ["./lib/*"]
+      "@lib/*": ["./lib/*"],
+      "@example/*": ["./examples/react/src/*"]
     }
   },
   "include": ["lib", "examples"],
