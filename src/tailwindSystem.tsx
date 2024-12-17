@@ -1,11 +1,11 @@
 // @ts-ignore
 import React from "react";
 
-const tailwindBreakpoints = ["sm", "md", "lg", "xl", "2xl"];
+export const tailwindBreakpoints = ["sm", "md", "lg", "xl", "2xl"];
 
-type Responsive<T> = T | T[];
+export type Responsive<T> = T | T[];
 
-type SpaceScale =
+export type SpaceScale =
   | "0"
   | "1"
   | "2"
@@ -44,8 +44,8 @@ type SpaceScale =
   | 56
   | 64;
 
-type BorderWidthScale = "0" | "2" | "4" | "8" | 0 | 2 | 4 | 8;
-type BorderRadiusScale = "none" | "sm" | "md" | "lg" | "full" | 0;
+export type BorderWidthScale = "0" | "2" | "4" | "8" | 0 | 2 | 4 | 8;
+export type BorderRadiusScale = "none" | "sm" | "md" | "lg" | "full" | 0;
 
 export type SpaceProps = {
   m?: Responsive<SpaceScale>;
@@ -177,7 +177,7 @@ export function createVariants<
         ShadowProps &
         LayoutProps
     >
-  >
+  >,
 >(config: VariantConfig) {
   return config;
 }
@@ -191,10 +191,9 @@ export function tailwindSystem<T, Variants = {}>(
     children,
     variant,
     ...props
-  }: T &
-    { className?: string; children?: React.ReactNode } & {
-      variant?: keyof Variants;
-    }) => {
+  }: T & { className?: string; children?: React.ReactNode } & {
+    variant?: keyof Variants;
+  }) => {
     const variantClasses = variant
       ? transformProps(variants[variant] || {}, mappings)
       : "";
@@ -223,7 +222,12 @@ const buttonVariants = createVariants({
 });
 
 const Button = tailwindSystem<
-  SpaceProps & ColorProps & TypographyProps & BorderProps & ShadowProps & LayoutProps,
+  SpaceProps &
+    ColorProps &
+    TypographyProps &
+    BorderProps &
+    ShadowProps &
+    LayoutProps,
   typeof buttonVariants
 >([space, color, typography, border, shadow, layout], buttonVariants);
 
@@ -233,7 +237,7 @@ const App = () => (
       Responsive Button
     </Button>
     <Button variant="foo">Foo Variant</Button>
-    <Button variant="bar" m={[2, 4]} boxShadow="lg">
+    <Button variant="bar" p={[2, 4]} boxShadow="lg">
       Bar Variant
     </Button>
   </div>
