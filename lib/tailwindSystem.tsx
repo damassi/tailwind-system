@@ -1,9 +1,6 @@
-// @ts-ignore
-import React from "react";
+export const tailwindBreakpoints = ["sm", "md", "lg", "xl", "2xl"]
 
-export const tailwindBreakpoints = ["sm", "md", "lg", "xl", "2xl"];
-
-export type Responsive<T> = T | T[];
+export type Responsive<T> = T | T[]
 
 export type SpaceScale =
   | "0"
@@ -42,54 +39,54 @@ export type SpaceScale =
   | 40
   | 48
   | 56
-  | 64;
+  | 64
 
-export type BorderWidthScale = "0" | "2" | "4" | "8" | 0 | 2 | 4 | 8;
-export type BorderRadiusScale = "none" | "sm" | "md" | "lg" | "full" | 0;
+export type BorderWidthScale = "0" | "2" | "4" | "8" | 0 | 2 | 4 | 8
+export type BorderRadiusScale = "none" | "sm" | "md" | "lg" | "full" | 0
 
 export type SpaceProps = {
-  m?: Responsive<SpaceScale>;
-  mt?: Responsive<SpaceScale>;
-  mr?: Responsive<SpaceScale>;
-  mb?: Responsive<SpaceScale>;
-  ml?: Responsive<SpaceScale>;
-  mx?: Responsive<SpaceScale>;
-  my?: Responsive<SpaceScale>;
+  m?: Responsive<SpaceScale>
+  mt?: Responsive<SpaceScale>
+  mr?: Responsive<SpaceScale>
+  mb?: Responsive<SpaceScale>
+  ml?: Responsive<SpaceScale>
+  mx?: Responsive<SpaceScale>
+  my?: Responsive<SpaceScale>
 
-  p?: Responsive<SpaceScale>;
-  pt?: Responsive<SpaceScale>;
-  pr?: Responsive<SpaceScale>;
-  pb?: Responsive<SpaceScale>;
-  pl?: Responsive<SpaceScale>;
-  px?: Responsive<SpaceScale>;
-  py?: Responsive<SpaceScale>;
-};
+  p?: Responsive<SpaceScale>
+  pt?: Responsive<SpaceScale>
+  pr?: Responsive<SpaceScale>
+  pb?: Responsive<SpaceScale>
+  pl?: Responsive<SpaceScale>
+  px?: Responsive<SpaceScale>
+  py?: Responsive<SpaceScale>
+}
 
 export type ColorProps = {
-  textColor?: Responsive<string>;
-  backgroundColor?: Responsive<string>;
-  opacity?: Responsive<"0" | "25" | "50" | "75" | "100">;
-};
+  textColor?: Responsive<string>
+  backgroundColor?: Responsive<string>
+  opacity?: Responsive<"0" | "25" | "50" | "75" | "100">
+}
 
 export type TypographyProps = {
-  fontSize?: Responsive<string>;
-  fontWeight?: Responsive<string>;
-  textAlign?: Responsive<"left" | "center" | "right" | "justify">;
-};
+  fontSize?: Responsive<string>
+  fontWeight?: Responsive<string>
+  textAlign?: Responsive<"left" | "center" | "right" | "justify">
+}
 
 export type BorderProps = {
-  borderWidth?: Responsive<BorderWidthScale>;
-  borderRadius?: Responsive<BorderRadiusScale>;
-};
+  borderWidth?: Responsive<BorderWidthScale>
+  borderRadius?: Responsive<BorderRadiusScale>
+}
 
 export type ShadowProps = {
-  boxShadow?: Responsive<"sm" | "md" | "lg" | "xl" | "2xl" | "inner" | "none">;
-};
+  boxShadow?: Responsive<"sm" | "md" | "lg" | "xl" | "2xl" | "inner" | "none">
+}
 
 export type LayoutProps = {
-  width?: Responsive<string>;
-  height?: Responsive<string>;
-};
+  width?: Responsive<string>
+  height?: Responsive<string>
+}
 
 export const space: Record<keyof SpaceProps, string> = {
   m: "m",
@@ -106,63 +103,63 @@ export const space: Record<keyof SpaceProps, string> = {
   pl: "pl",
   px: "px",
   py: "py",
-};
+}
 
 export const color: Record<keyof ColorProps, string> = {
   textColor: "text",
   backgroundColor: "bg",
   opacity: "opacity",
-};
+}
 
 export const typography: Record<keyof TypographyProps, string> = {
   fontSize: "text",
   fontWeight: "font",
   textAlign: "text",
-};
+}
 
 export const border: Record<keyof BorderProps, string> = {
   borderWidth: "border",
   borderRadius: "rounded",
-};
+}
 
 export const shadow: Record<keyof ShadowProps, string> = {
   boxShadow: "shadow",
-};
+}
 
 export const layout: Record<keyof LayoutProps, string> = {
   width: "w",
   height: "h",
-};
+}
 
 function transformProps(
   props: Record<string, any>,
-  mappings: Record<string, string>[]
+  mappings: Record<string, string>[],
 ): string {
-  const classes: string[] = [];
+  const classes: string[] = []
 
   mappings.forEach((category) => {
     Object.entries(category).forEach(([key, prefix]) => {
-      const value = props[key];
+      const value = props[key]
 
       if (value !== undefined) {
         if (Array.isArray(value)) {
-          const paddedValues = [...value];
+          const paddedValues = [...value]
 
           while (paddedValues.length < tailwindBreakpoints.length) {
-            paddedValues.push(paddedValues[paddedValues.length - 1]);
+            paddedValues.push(paddedValues[paddedValues.length - 1])
           }
 
           paddedValues.forEach((v, index) => {
-            classes.push(`${tailwindBreakpoints[index]}:${prefix}-${v}`);
-          });
+            classes.push(`${tailwindBreakpoints[index]}:${prefix}-${v}`)
+          })
         } else {
-          classes.push(`${prefix}-${value}`);
+          classes.push(`${prefix}-${value}`)
         }
       }
-    });
-  });
+    })
+  })
 
-  return classes.join(" ");
+  return classes.join(" ")
 }
 
 export function createVariants<
@@ -179,12 +176,12 @@ export function createVariants<
     >
   >,
 >(config: VariantConfig) {
-  return config;
+  return config
 }
 
 export function tailwindSystem<T, Variants = {}>(
   mappings: Record<string, string>[],
-  variants: Variants = {} as Variants
+  variants: Variants = {} as Variants,
 ) {
   return ({
     className = "",
@@ -192,20 +189,20 @@ export function tailwindSystem<T, Variants = {}>(
     variant,
     ...props
   }: T & { className?: string; children?: React.ReactNode } & {
-    variant?: keyof Variants;
+    variant?: keyof Variants
   }) => {
     const variantClasses = variant
       ? transformProps(variants[variant] || {}, mappings)
-      : "";
+      : ""
 
-    const baseClasses = transformProps(props, mappings);
+    const baseClasses = transformProps(props, mappings)
 
     const finalClassName = [variantClasses, baseClasses, className]
       .filter(Boolean)
-      .join(" ");
+      .join(" ")
 
-    return <div className={finalClassName}>{children}</div>;
-  };
+    return <div className={finalClassName}>{children}</div>
+  }
 }
 
 const buttonVariants = createVariants({
@@ -219,7 +216,7 @@ const buttonVariants = createVariants({
     textColor: "black",
     backgroundColor: "gray-500",
   },
-});
+})
 
 const Button = tailwindSystem<
   SpaceProps &
@@ -229,7 +226,7 @@ const Button = tailwindSystem<
     ShadowProps &
     LayoutProps,
   typeof buttonVariants
->([space, color, typography, border, shadow, layout], buttonVariants);
+>([space, color, typography, border, shadow, layout], buttonVariants)
 
 const App = () => (
   <div>
@@ -241,4 +238,4 @@ const App = () => (
       Bar Variant
     </Button>
   </div>
-);
+)

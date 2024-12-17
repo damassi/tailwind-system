@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "target": "ESNext",
     "lib": ["DOM", "ESNext"],
     "module": "NodeNext",
@@ -9,8 +10,11 @@
     "pretty": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "paths": {
+      "@lib/*": ["./lib/*"]
+    }
   },
-  "include": ["src"],
+  "include": ["lib", "examples"],
   "exclude": ["node_modules", "dist"]
 }

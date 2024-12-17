@@ -1,12 +1,4 @@
 {
-  "search.exclude": {
-    "**/node_modules": true,
-    "**/graphql": true,
-    ".cache/**": true
-  },
-  "files.exclude": {
-    "**/.git": true
-  },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.formatOnSave": true,
   "typescript.preferences.importModuleSpecifier": "non-relative",
