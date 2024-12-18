@@ -33,7 +33,6 @@ const buttonVariants = createVariants({
   },
 })
 
-// Button component with variants
 const Button = tailwindSystem<
   SpaceProps &
     ColorProps &
@@ -45,10 +44,8 @@ const Button = tailwindSystem<
   typeof buttonVariants
 >([space, color, typography, border, shadow, layout, display], buttonVariants)
 
-// Custom Box component
-const Box = tailwindSystem<DisplayProps>("div", [display])
+const Box = tailwindSystem<DisplayProps & LayoutProps>("div", [display, layout])
 
-// Custom Button element
 const CustomButton = tailwindSystem<SpaceProps & DisplayProps>("button", [
   space,
   display,
@@ -109,6 +106,20 @@ describe("tailwindSystem", () => {
   test("applies responsive props without prefixes", () => {
     const { container } = render(<Box display={["block", "flex", "grid"]} />)
     expect(container.firstChild).toHaveClass("sm:block md:flex lg:grid")
+  })
+
+  describe("dynanmic values", () => {
+    test("applies numeric width and height without transformation", () => {
+      const { container } = render(<Box width={[20, 32, 48]} height="full" />)
+      expect(container.firstChild).toHaveClass(
+        "sm:w-20 md:w-32 lg:w-48 h-[full]",
+      )
+    })
+
+    test("applies static width and height with and without transformation", () => {
+      const { container } = render(<Box width="30%" height={100} />)
+      expect(container.firstChild).toHaveClass("w-[30%] h-100")
+    })
   })
 
   describe("custom elements", () => {

@@ -53,5 +53,10 @@ module.exports = {
     { pattern: /items-(.+)/ },
     { pattern: /self-(.+)/ },
     { pattern: /flex-wrap/ },
+
+    // Width
+    { pattern: /w-(\d|1\/\d)/ },
+    { pattern: /max-w-(\d|1\/\d)/ },
+    { pattern: /min-w-(\d|1\/\d)/ },
   ]),
 }

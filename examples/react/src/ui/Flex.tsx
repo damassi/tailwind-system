@@ -5,7 +5,7 @@ import {
   tailwindSystem,
 } from "@lib/tailwindSystem"
 
-type FlexProps = BoxProps & BaseFlexProps
+type FlexProps = BoxProps & BaseFlexProps & { className?: string }
 
 const BaseFlex = tailwindSystem<FlexProps>([...boxMixins, flex])
 

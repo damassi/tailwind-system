@@ -14,7 +14,7 @@ export const App = () => {
           <Box mr={2}>Rsbuild with React</Box>
           <Box>And tailwind-system</Box>
         </Flex>
-        <Flex flexDirection="col" mt={4}>
+        <Flex flexDirection="col" mt={4} width="20">
           <Button variant="small">Small button</Button>
           <Button variant="large">Large button</Button>
         </Flex>

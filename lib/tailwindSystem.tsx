@@ -86,8 +86,8 @@ export type ShadowProps = {
 }
 
 export type LayoutProps = {
-  width?: Responsive<string>
-  height?: Responsive<string>
+  width?: Responsive<string | number>
+  height?: Responsive<string | number>
 }
 
 export type FlexProps = {
@@ -179,22 +179,46 @@ export const shadow: Record<keyof ShadowProps, string> = {
   boxShadow: "shadow",
 }
 
-export const layout: Record<keyof LayoutProps, string> = {
-  width: "w",
-  height: "h",
+export const layout: Record<
+  keyof LayoutProps,
+  { prefix: string; transform?: (val: string | number) => string }
+> = {
+  width: {
+    prefix: "w",
+    transform: (val) => (typeof val === "string" ? `[${val}]` : `${val}`),
+  },
+  height: {
+    prefix: "h",
+    transform: (val) => (typeof val === "string" ? `[${val}]` : `${val}`),
+  },
 }
+
+type MappingValue =
+  | string
+  | { prefix: string; transform?: (val: string | number) => string }
 
 function transformProps(
   props: Record<string, any>,
-  mappings: Record<string, string>[],
+  mappings: Record<string, MappingValue>[],
 ): string {
   const classes: string[] = []
 
   mappings.forEach((category) => {
-    Object.entries(category).forEach(([key, prefix]) => {
+    Object.entries(category).forEach(([key, definition]) => {
       const value = props[key]
 
       if (value) {
+        let prefix: string
+        let transform: ((val: string | number) => string) | undefined
+
+        // Determine if the mapping is a string or an object
+        if (typeof definition === "string") {
+          prefix = definition
+        } else {
+          prefix = definition.prefix
+          transform = definition.transform
+        }
+
         if (Array.isArray(value)) {
           const paddedValues = [...value]
 
@@ -204,15 +228,19 @@ function transformProps(
 
           paddedValues.forEach((v, index) => {
             const responsivePrefix = tailwindBreakpoints[index]
+            const transformedValue = transform ? transform(v) : v
 
             classes.push(
               prefix
-                ? `${responsivePrefix}:${prefix}-${v}`
-                : `${responsivePrefix}:${v}`,
+                ? `${responsivePrefix}:${prefix}-${transformedValue}`
+                : `${responsivePrefix}:${transformedValue}`,
             )
           })
         } else {
-          classes.push(prefix ? `${prefix}-${value}` : `${value}`)
+          const transformedValue = transform ? transform(value) : value
+          classes.push(
+            prefix ? `${prefix}-${transformedValue}` : `${transformedValue}`,
+          )
         }
       }
     })
@@ -229,17 +257,36 @@ export function createVariants<
 }
 
 export function tailwindSystem<T, Variants = {}>(
-  elementOrMappings: string | Record<string, string>[],
-  mappingsOrVariants?: Record<string, string>[] | Variants,
+  elementOrMappings:
+    | string
+    | Record<
+        string,
+        string | { prefix: string; transform?: (val: any) => string }
+      >[],
+  mappingsOrVariants?:
+    | Record<
+        string,
+        string | { prefix: string; transform?: (val: any) => string }
+      >[]
+    | Variants,
   variants?: Variants,
 ) {
   const element =
     typeof elementOrMappings === "string" ? elementOrMappings : "div"
 
-  const mappings: Record<string, string>[] =
+  const mappings: Record<
+    string,
+    string | { prefix: string; transform?: (val: any) => string }
+  >[] =
     typeof elementOrMappings === "string"
-      ? (mappingsOrVariants as Record<string, string>[])
-      : (elementOrMappings as Record<string, string>[])
+      ? (mappingsOrVariants as Record<
+          string,
+          string | { prefix: string; transform?: (val: any) => string }
+        >[])
+      : (elementOrMappings as Record<
+          string,
+          string | { prefix: string; transform?: (val: any) => string }
+        >[])
 
   const resolvedVariants =
     typeof elementOrMappings === "string"
@@ -297,7 +344,7 @@ const Button = tailwindSystem<
 
 const App = () => (
   <div>
-    <Button p={[1, 2]} display="flex" justifyContent="center">
+    <Button p={[1, 2]} display="inline" justifyContent="center">
       Responsive Button
     </Button>
     <Button variant="foo">Foo Variant</Button>
